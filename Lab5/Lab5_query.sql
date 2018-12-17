@@ -1,96 +1,128 @@
-use universitatea
+USE universitatea
+
+DECLARE @N1 int , @N2 int, @N3 int;
+DECLARE @MAI_MARE int;
+SET @N1 = 60 * RAND();
+SET @N2 = 60 * RAND();
+SET @N3 = 60 * RAND();
+SET @MAI_MARE = @N1;
+IF @MAI_MARE < @N2
+   SET @MAI_MARE = @N2;
+IF @MAI_MARE < @N3
+   SET @MAI_MARE = @N3;
+
+PRINT @N1;
+PRINT @N2;
+PRINT @N3;
+PRINT 'Mai mare = ' + CAST(@MAI_MARE AS VARCHAR(2));
 
 
--- Task 1 ---------------------------------------------------------------------@
-
-DECLARE @Nl INT, @N2 INT, @N3 INT; 
-DECLARE @MAI_MARE INT; 
-SET @Nl = 60 * RAND(); 
-SET @N2 = 60 * RAND(); 
-SET @N3 = 60 * RAND(); 
-IF @Nl > @N2 AND @Nl > @N3
-   SELECT @MAI_MARE = @Nl; 
-   ELSE IF @N2 > @Nl AND @N2 > @N3
-   SELECT @MAI_MARE = @N2;
-   ELSE IF @N3 > @Nl AND @N3 > @N2
-   SELECT @MAI_MARE = @N3;
-PRINT @Nl; 
-PRINT @N2; 
-PRINT @N3; 
-PRINT 'Mai mare = ' + CAST(@MAI_MARE AS VARCHAR(2)); 
-
--- Task 2 ---------------------------------------------------------------------@
-
-declare @IgnoreMark_01 int = 6;
-declare @IgnoreMark_02 int = 8;
-
-select  top (30) Nume_Student, Prenume_Student, Nota
-from studenti, studenti_reusita, discipline
-where discipline.Id_Disciplina = studenti_reusita.Id_Disciplina
-and studenti.Id_Student = studenti_reusita.Id_Student
-and Disciplina = 'Baze de date'
-and Tip_Evaluare = 'Testul 1'
-and Nota = IIF(Nota != @IgnoreMark_01 AND Nota != @IgnoreMark_02, Nota, 0);
-
--- Task 3 ---------------------------------------------------------------------@
-
-set @Nl = 60 * rand();
-set @N2 = 60 * rand();
-set @N3 = 60 * rand();
-set @MAI_MARE = @Nl;
-set @MAI_MARE = case 
-when @MAI_MARE < @N3 and @N2<@N3 then  @N3
-when  @MAI_MARE < @N2 and @N3 < @N2 then  @N2
-else @MAI_MARE
-end   
-print @Nl;
-print @N2;
-print @N3;
-print 'Mai mare = ' + cast( @MAI_MARE as varchar(2));
-
--- Task 4 Part 1---------------------------------------------------------------------@
 
 
-SET @Nl = 60 * RAND(); 
-SET @N2 = 60 * RAND(); 
-SET @N3 = 60 * RAND(); 
+
+DECLARE @nume_disciplina VARCHAR(20) = 'Baze de date'
+DECLARE @test VARCHAR(20) = 'Testul 1'
+DECLARE @note TABLE (nota INT)
+
+INSERT INTO @note(nota) VALUES (6)
+INSERT INTO @note(nota) VALUES (8)
+
+SELECT DISTINCT TOP 10 studenti.Nume_Student, studenti.Prenume_Student
+FROM studenti_reusita 
+	INNER JOIN studenti
+		ON studenti_reusita.Id_Student = studenti.Id_Student
+	INNER JOIN discipline 
+		ON discipline.Id_Disciplina = studenti_reusita.Id_Disciplina
+WHERE discipline.Disciplina = @nume_disciplina AND studenti_reusita.Tip_Evaluare = @test
+	AND studenti_reusita.Nota NOT IN (SELECT nota FROM @note)
+
+
+
+
+DECLARE @N1 INT , @N2 INT, @N3 INT;
+DECLARE @MAI_MARE INT;
+SET @N1 = 60 * RAND();
+SET @N2 = 60 * RAND();
+SET @N3 = 60 * RAND();
+SET @MAI_MARE = @N1;
+SET @MAI_MARE = CASE 
+WHEN  @MAI_MARE < @N2 AND @N3 < @N2
+THEN  @N2
+WHEN @MAI_MARE < @N3 and @N2<@N3
+THEN  @N3
+ELSE @MAI_MARE
+END   
+PRINT @N1;
+PRINT @N2;
+PRINT @N3;
+PRINT 'Mai mare = ' + CAST( @MAI_MARE AS VARCHAR(2));
+
+
+
+
+
+DECLARE @N1 INT , @N2 INT, @N3 INT;
+DECLARE @MAI_MARE INT;
+SET @N1 = 60 * RAND();
+SET @N2 = 60 * RAND();
+SET @N3 = 60 * RAND() ;
+SET @MAI_MARE = @N1;
 
 BEGIN TRY
-IF @Nl > @N2 AND @Nl > @N3
-   SELECT @MAI_MARE = @Nl; 
-   ELSE IF @N2 > @Nl AND @N2 > @N3
-   SELECT @MAI_MARE = @N2;
-   ELSE IF @N3 > @Nl AND @N3 > @N2
-   SELECT @MAI_MARE = @N3;
-   ELSE 
-   RAISERROR('Mai mare nu a fost setat deoarece valoarea maxima se repeta de cel putin doua ori', 16, 1);
-END TRY 
+IF @N1 = @N2 OR @N1 = @N3 OR @N2 = @N3 
+    RAISERROR ('Some numbers have the same value', 1,1)
+ELSE
+BEGIN
+IF @MAI_MARE < @N2
+   SET @MAI_MARE = @N2;
+IF @MAI_MARE < @N3
+   SET @MAI_MARE = @N3;
+PRINT @N1;
+PRINT @N2;
+PRINT @N3;
+PRINT 'Mai mare = ' + CAST(@MAI_MARE AS VARCHAR(2));
+END
+END TRY
 
 BEGIN CATCH
-	print ' ERROR :' + cast(ERROR_LINE() as varchar(20));
+PRINT 'Error occured' 
+PRINT 'Details of error'
+PRINT 'Number of error:' + CAST(ERROR_NUMBER() AS VARCHAR(20))
+PRINT 'Level of severity:' + CAST(ERROR_SEVERITY() AS VARCHAR(20))
+PRINT 'Error status:' + CAST(ERROR_STATE() AS VARCHAR(20))
+PRINT 'Error line:' + CAST(ERROR_LINE() AS VARCHAR(20))
 END CATCH
 
-PRINT @Nl; 
-PRINT @N2; 
-PRINT @N3; 
-PRINT 'Mai mare = ' + CAST(@MAI_MARE AS VARCHAR(2)); 
 
--- Task 4 Part 2---------------------------------------------------------------------@
 
+
+
+
+DECLARE @Tip_Evaluare VARCHAR(20) = 'Testul 1' ;
+DECLARE @Nume_Disciplina VARCHAR(20)= 'Baze de date';
 
 BEGIN TRY
 
-select  top (30) Nume_Student, Prenume_Student, Nota
-from studenti, studenti_reusita, discipline
-where discipline.Id_Disciplina = studenti_reusita.Id_Disciplina
-and studenti.Id_Student = studenti_reusita.Id_Student
-and Disciplina = 'Baze de date'
-and Tip_Evaluare = 'Testul 1'
-and Nota = IIF(Nota != @IgnoreMark_01 AND Nota != @IgnoreMark_02, Nota, null);
+IF @Tip_Evaluare = null 
+  RAISERROR ('Tip_Evaluare is not known',3,3)
+ELSE IF @Nume_Disciplina = null
+  RAISERROR ('Nume_Disciplina is not known',3,3)
 
-END TRY 
-
-BEGIN CATCH 
-	print ' ERROR :' + cast(ERROR_LINE() as varchar(20));
-END CATCH 
-
+ELSE
+SELECT TOP 10 Nume_Student, Prenume_Student 
+FROM studenti
+WHERE Id_Student IN (	
+	SELECT IIF(Nota <> 6 AND Nota <> 8, Id_Student, null)
+	 FROM studenti_reusita, discipline
+	WHERE studenti_reusita.Id_Disciplina = discipline.Id_Disciplina
+	AND Tip_Evaluare = @Tip_Evaluare AND Disciplina = @Nume_Disciplina
+)
+END TRY
+BEGIN CATCH
+PRINT 'Error occured' 
+PRINT 'Details of error'
+PRINT 'Number of error:' + CAST(ERROR_NUMBER() AS VARCHAR(20))
+PRINT 'Level of severity:' + CAST(ERROR_SEVERITY() AS VARCHAR(20))
+PRINT 'Error status:' + CAST(ERROR_STATE() AS VARCHAR(20))
+PRINT 'Error line:' + CAST(ERROR_LINE() AS VARCHAR(20))
+END CATCH
